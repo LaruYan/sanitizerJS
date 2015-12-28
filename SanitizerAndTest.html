@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
+</head>
+<input id="inputHere" />
+<button type="button" onclick="javascript:testSanitizeButton();">test</button>
+<script language="javascript">
+//npm install big-integer //is for node.js
+//var bigInt = require("big-integer"); //is for node.js
+var sanitizer = function(input){
+	console.log(input);
+	var mustBeResanitized = false;
+    var sanitized = bigInt.minusOne;
+	if(input){
+		//make sure input isn't empty
+		input = input.trim();
+		if( ! input){
+			return sanitized;
+		}
+		
+		//filter out non-numbers;
+		if( isNaN(input)){
+			return sanitized;
+		}
+
+		//sanitize hexadecimal;
+		if(!mustBeResanitized && input.slice(0, "0x".length) == "0x"){
+			if(input.length > 2){ 
+				input = input.slice(2);
+			}mustBeResanitized = true;
+		}
+		if(!mustBeResanitized && input.slice(0, "0X".length) == "0X"){
+			if(input.length > 2){ 
+				input = input.slice(2);
+			}mustBeResanitized = true;
+		}
+		
+		if( ! mustBeResanitized){
+			sanitized = bigInt(input);
+		}else{
+			sanitized = sanitizer(input);
+		}
+	}
+	return sanitized;
+}</script>
+
+<script language="javascript">
+var testSanitizeButton = function(){
+	testSanitize(document.getElementById('inputHere').value);
+}
+var testSanitize = function(input){
+	 // create almost any element this way...
+    var el = document.createElement("div");
+    // add some text to the element...
+    el.innerHTML = "input: "+input+" / result: "+sanitizer(input);
+    // "document.body" can be any element on the page.
+    document.body.appendChild(el);
+}
+</script>
+<p>
+presetted inputs; if this is filtered out = result -1 would be shown</p>
+<script language="javascript">
+testSanitize("9223372036854775807");
+testSanitize("92233720368dkjaldjf54775808");
+testSanitize("-9223372036854775808");
+testSanitize("-9223372036+854775808");
+testSanitize("-9223372036-854775808");
+testSanitize("0xAE76");
+testSanitize("0XAE76");
+</script>
+<body>
+</body>
+</html>
