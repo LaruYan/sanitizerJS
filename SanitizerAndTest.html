@@ -17,14 +17,17 @@ var sanitizer = function(input){
 	if(input){
 		//make sure input isn't empty
 		input = input.trim();
+		console.log(input);
 		if( ! input){
 			return sanitized;
 		}
+		console.log(input);
 		
 		//filter out non-numbers;
 		if( isNaN(input)){
-			return sanitized;
+			input = stripOutNonDigits(input);
 		}
+		console.log(input);
 
 		//sanitize hexadecimal;
 		if(!mustBeResanitized && input.slice(0, "0x".length) == "0x"){
@@ -37,15 +40,21 @@ var sanitizer = function(input){
 				input = input.slice(2);
 			}mustBeResanitized = true;
 		}
+		console.log(input);
 		
 		if( ! mustBeResanitized){
 			sanitized = bigInt(input);
 		}else{
 			sanitized = sanitizer(input);
 		}
+		console.log(sanitized);
 	}
-	return sanitized;
-}</script>
+	return String(sanitized);
+}
+var stripOutNonDigits = function(input){
+	return input.replace(/\D/g,'');
+}
+</script>
 
 <script language="javascript">
 var testSanitizeButton = function(){
