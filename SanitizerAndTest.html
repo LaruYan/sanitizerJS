@@ -10,35 +10,81 @@
 <script language="javascript">
 //npm install big-integer //is for node.js
 //var bigInt = require("big-integer"); //is for node.js
+var isDebug = true;
 var sanitizer = function(input){
     var sanitized = bigInt.minusOne;
+	if(isDebug){
+		console.log("First Input: "+input);
+	}
 	if(input){
 		//make sure input isn't empty
 		input = input.trim();
+		if(isDebug){
+			console.log("Trimmed: "+input);
+		}
 		if( ! input){
-			return sanitized;
+			if(isDebug){
+				console.log("Trimmed is empty string. returning -1");
+			}
+			return bigInt.minusOne;
 		}
 		
 		//if this is signed, make it unsigned
 		if(input.slice(0, "+".length) == "+" || input.slice(0, "-".length) == "-"){
-			input = input.slice(1);
+			
+			if(input.length > 1){
+				input = input.slice(1);
+				if(isDebug){
+					console.log("Unsigned: " + input);
+				}
+			}else{
+				if(isDebug){
+					console.log("Unsigned is empty string. returning -1");
+				}
+				return bigInt.minusOne;
+			}
 		}
 
 		//filterout hexadecimal indicators;
 		if(input.slice(0, "0x".length) == "0x" || input.slice(0, "0X".length) == "0X"){
 			if(input.length > 2){ 
 				input = input.slice(2);
+				if(isDebug){
+					console.log("Filtered out Hexadecimal indicators: " + input);
+				}
+			}else{
+				if(isDebug){
+					console.log("Filtered out Hexadecimal is empty string. returning -1");
+				}
+				return bigInt.minusOne;
 			}
 		}
 		
 		//filter out non-numbers;
 		if( isNaN(input)){
 			input = stripOutNonDigits(input);
+			if(isDebug){
+				console.log("Stripped out non digits: " + input);
+			}
 		}
 		
-		sanitized = bigInt(input);
+		if( ! input){
+			if(isDebug){
+				console.log("FAIL. result is empty string. returning -1");
+			}
+			return bigInt.minusOne;
+		}else{
+			if(isDebug){
+				console.log("OK. returning: " + input);
+			}
+			return bigInt(String(input));
+		}
+	}else{
+		if(isDebug){
+			console.log("Input is null or empty string. returning -1");
+		}
+		return bigInt.minusOne;
 	}
-	return String(sanitized);
 }
 var stripOutNonDigits = function(input){
 	return input.replace(/\D/g,'');
@@ -53,13 +99,16 @@ var testSanitize = function(input){
 	 // create almost any element this way...
     var el = document.createElement("div");
     // add some text to the element...
-    el.innerHTML = "input: "+input+" / result: "+sanitizer(input);
+    el.innerHTML = "input: "+input+" / result: "+String(sanitizer(input));
     // "document.body" can be any element on the page.
     document.body.appendChild(el);
 }
 </script>
 <p>
-presetted inputs; if this is filtered out = result -1 would be shown</p>
+presetted inputs; if this is failed to filter out, such as input is null ,result is empty string, this just pulls out -1</p>
+<p>
+The returning object is BigInteger( http://peterolson.github.com/BigInteger.js ) so you have to import and have proper cast on it;
+</p>
 <script language="javascript">
 testSanitize("9223372036854775807");
 testSanitize("92233720368dkjaldjf54775808");
